@@ -52,7 +52,24 @@ The job checks its own work on every run:
 - **That spread is more than noise.** 11 of 72 refs have a 95% interval excluding zero on free throws and 11 on fouls, against about 3.6 expected by chance. In the permutation test the real data flagged 13 (free throws) and 11 (fouls) refs, while 20 shuffles flagged 3.9 and 4.2 on average and never more than 9 and 7. Eight refs are flagged on both measures; the two effects correlate at 0.78 across all 113 refs, partly by construction since fouls produce free throws.
 - **What this does not show.** These are statistical tendencies over hundreds of games, not evidence of intent or bias. Foul calls are made by any of the three crew members, so effects are attributed to refs only through crew rotation. Ref assignment is not random, and the model controls for the teams but not for everything else about a matchup. Twenty shuffles cannot resolve a p-value below about 0.05. In synthetic tests the bootstrap intervals flagged 4-7% of refs when no effect existed (nominal 5%).
 
-Per-referee results are in `nba_gold.ref_home_whistle`.
+### The referees at each end
+
+Adjusted effect on the home free-throw margin (home FTA minus away FTA) per game, relative to the average ref, with the 95% bootstrap interval. The foul column is the same measure for fouls (positive means fewer fouls called on the home team). Top and bottom five of the 72 refs with 200+ games:
+
+| Referee | Games | FTA effect | 95% interval | Foul effect |
+|---|---|---|---|---|
+| Kevin Cutler | 559 | +1.10 | +0.36 to +1.74 | +0.88 |
+| Dedric Taylor | 534 | +1.08 | +0.35 to +1.88 | +0.51 |
+| Ed Malloy | 545 | +0.92 | +0.14 to +1.65 | +0.52 |
+| Courtney Kirkland | 564 | +0.91 | +0.15 to +1.63 | +0.48 |
+| Sean Corbin | 483 | +0.85 | +0.11 to +1.58 | +0.35 |
+| Ken Mauer | 275 | -0.97 | -1.63 to -0.33 | -0.55 |
+| Zach Zarba | 589 | -0.99 | -1.62 to -0.25 | -0.01 |
+| Mousa Dagher | 354 | -1.01 | -1.68 to -0.32 | -0.43 |
+| J.T. Orr | 483 | -1.11 | -1.87 to -0.37 | -0.44 |
+| Brett Nansel | 429 | -1.39 | -2.10 to -0.67 | -0.54 |
+
+Eight refs are flagged on both measures: every name above except Corbin and Zarba, who are flagged on free throws only. A positive effect means home teams got more free-throw attempts than the average ref gives them; a negative effect means fewer. Neither is a claim about intent. Of 72 refs, about 3.6 would be flagged on one measure by chance alone, so a few names on any such list are expected to be noise, and the per-ref intervals are wide (a ref at +1.0 is consistent with anything from about +0.1 to +1.7). The full table is in `nba_gold.ref_home_whistle`.
 
 ## Engineering challenges solved
 
