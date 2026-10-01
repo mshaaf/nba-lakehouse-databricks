@@ -1,0 +1,23 @@
+# Raw/extracted data never goes in the repo (NBA.com terms of use)
+data/
+*.csv
+*.parquet
+*.sqlite
+*.db
+
+# Credentials
+.env
+.databrickscfg
+*.pem
+
+# Databricks bundle state
+.databricks/
+
+# Python
+__pycache__/
+.venv/
+venv/
+
+# Local notes
+CLAUDE.md
+.DS_Store
