@@ -1,0 +1,21 @@
+bundle:
+  name: nba_lakehouse
+
+resources:
+  jobs:
+    nba_pipeline:
+      name: nba_pipeline
+      tasks:
+        - task_key: bronze
+          notebook_task:
+            notebook_path: ./notebooks/01_bronze.py
+        - task_key: silver
+          depends_on:
+            - task_key: bronze
+          notebook_task:
+            notebook_path: ./notebooks/02_silver.py
+
+targets:
+  dev:
+    mode: development
+    default: true
