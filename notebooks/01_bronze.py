@@ -4,11 +4,15 @@
 # no new files is a no-op. allowOverwrites re-ingests a season file when the
 # extractor re-pulls it (box score corrections); Silver keeps the latest version.
 # Columns stay as raw strings (inferColumnTypes off); Silver casts them.
+import os
+
 from pyspark.sql import functions as F
 
 VOLUME = "/Volumes/workspace/nba_bronze/landing"
 
-for dataset in ["team_game_logs", "player_game_logs", "game_summaries"]:
+for dataset in ["team_game_logs", "player_game_logs", "game_summaries", "game_summaries_missing"]:
+    if not os.path.isdir(f"{VOLUME}/{dataset}"):
+        continue  # game_summaries_missing only exists when the source has gaps
     (
         spark.readStream.format("cloudFiles")
         .option("cloudFiles.format", "json")

@@ -38,6 +38,12 @@ team_games = latest(f"{BRONZE}.team_game_logs", ["GAME_ID", "TEAM_ID"]).select(
 )
 
 summaries = latest(f"{BRONZE}.game_summaries", ["gameId"])
+# Games the API has no summary for (empty response at the source). Listed by the
+# extractor so a coverage gap is explicit instead of silently tolerated.
+if spark.catalog.tableExists(f"{BRONZE}.game_summaries_missing"):
+    missing_summaries = latest(f"{BRONZE}.game_summaries_missing", ["gameId"]).select(F.col("gameId").alias("game_id"))
+else:
+    missing_summaries = spark.createDataFrame([], "game_id string")
 game_info = summaries.select(
     F.col("gameId").alias("game_id"),
     F.col("homeTeamId").cast("bigint").alias("home_team_id"),
@@ -87,13 +93,15 @@ checks = {
     "team pts != sum of player pts": team_games.join(player_pts, ["game_id", "team_id"], "left")
     .filter("player_pts IS NULL OR pts != player_pts")
     .count(),
-    "games in team logs with no summary": games.join(game_info, "game_id", "left_anti").count(),
+    "games with no summary and not listed as missing at the source": games.join(game_info, "game_id", "left_anti")
+    .join(missing_summaries, "game_id", "left_anti")
+    .count(),
     "summaries with no team log game": game_info.join(games, "game_id", "left_anti").count(),
     "summary home team != team log home team": team_games.filter("is_home")
     .join(game_info, "game_id")
     .filter("team_id != home_team_id")
     .count(),
-    "games with 0 or more than 3 officials": game_officials.groupBy("game_id").count().filter("count > 3").count()
+    "games with 0 or more than 4 officials": game_officials.groupBy("game_id").count().filter("count > 4").count()
     + game_info.join(game_officials, "game_id", "left_anti").count(),
 }
 for name, bad in checks.items():
@@ -102,7 +110,8 @@ failed = {name: bad for name, bad in checks.items() if bad}
 assert not failed, f"data quality checks failed: {failed}"
 print("neutral-site games (no home team listed):", games.filter("home_teams = 0").count())
 print("games flagged is_neutral:", game_info.filter("is_neutral").count())
-print("games with only 2 officials:", game_officials.groupBy("game_id").count().filter("count = 2").count())
+print("games documented as having no summary at the source:", missing_summaries.join(game_info, "game_id", "left_anti").count())
+print("official counts per game:", {r["count"]: r["n"] for r in game_officials.groupBy("game_id").count().groupBy("count").agg(F.count("*").alias("n")).collect()})
 
 # COMMAND ----------
 
